@@ -65,7 +65,7 @@ vim.o.splitbelow = true
 --   and `:help lua-options-guide`
 vim.o.list = true
 vim.opt.listchars = { tab = '» ', trail = '·', nbsp = '␣' }
-vim.opt.colorcolumn = '80,120'
+vim.opt.colorcolumn = '80,100,120'
 
 -- Preview substitutions live, as you type!
 vim.o.inccommand = 'split'
