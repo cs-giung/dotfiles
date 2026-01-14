@@ -8,7 +8,24 @@ return {
     opts = {
       strategies = {
         chat = { adapter = 'gemini_cli' },
+        inline = { adapter = 'gemini' },
         cmd = { adapter = 'gemini' },
+      },
+      adapters = {
+        http = {
+          gemini = function()
+            return require('codecompanion.adapters').extend('gemini', {
+              schema = {
+                model = {
+                  default = 'gemini-2.5-flash-lite',
+                },
+              },
+              env = {
+                api_key = 'GEMINI_API_KEY',
+              },
+            })
+          end,
+        },
       },
       display = {
         chat = {
@@ -24,6 +41,16 @@ return {
     },
     keys = {
       { '<leader>cc', '<cmd>CodeCompanionChat Toggle<cr>', desc = 'CodeCompanionChat Toggle' },
+    },
+  },
+  {
+    'OXY2DEV/markview.nvim',
+    lazy = false,
+    opts = {
+      preview = {
+        filetypes = { 'markdown', 'codecompanion' },
+        ignore_buftypes = {},
+      },
     },
   },
   --- {
