@@ -38,6 +38,7 @@ return {
     dependencies = {
       'nvim-lua/plenary.nvim',
       'nvim-treesitter/nvim-treesitter',
+      'lalitmee/codecompanion-spinners.nvim',
     },
     keys = {
       { '<leader>cc', '<cmd>CodeCompanionChat Toggle<cr>', desc = 'CodeCompanionChat Toggle' },
@@ -50,6 +51,21 @@ return {
       preview = {
         filetypes = { 'markdown', 'codecompanion' },
         ignore_buftypes = {},
+      },
+      markdown = {
+        code_blocks = {
+          enable = true,
+          style = 'language',
+        },
+      },
+      latex = {
+        enable = true,
+        blocks = {
+          enable = true,
+        },
+        inlines = {
+          enable = true,
+        },
       },
     },
   },
