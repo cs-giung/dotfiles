@@ -6,11 +6,6 @@ return {
     'olimorris/codecompanion.nvim',
     version = '^18.0.0',
     opts = {
-      strategies = {
-        chat = { adapter = 'gemini_cli' },
-        inline = { adapter = 'gemini' },
-        cmd = { adapter = 'gemini' },
-      },
       adapters = {
         http = {
           gemini = function()
@@ -34,14 +29,31 @@ return {
           },
         },
       },
+      extensions = {
+        spinner = {
+          opts = {
+            style = 'fidget',
+          },
+        },
+      },
+      strategies = {
+        chat = { adapter = 'gemini_cli' },
+        inline = { adapter = 'gemini' },
+        cmd = { adapter = 'gemini' },
+      },
     },
     dependencies = {
       'nvim-lua/plenary.nvim',
       'nvim-treesitter/nvim-treesitter',
       'lalitmee/codecompanion-spinners.nvim',
+      'j-hui/fidget.nvim',
     },
     keys = {
-      { '<leader>cc', '<cmd>CodeCompanionChat Toggle<cr>', desc = 'CodeCompanionChat Toggle' },
+      {
+        '<leader>cc',
+        '<cmd>CodeCompanionChat Toggle<cr>',
+        desc = 'CodeCompanionChat Toggle',
+      },
     },
   },
   {
@@ -66,6 +78,23 @@ return {
         inlines = {
           enable = true,
         },
+      },
+    },
+  },
+  {
+    'akinsho/toggleterm.nvim',
+    version = '*',
+    opts = {
+      direction = 'float',
+    },
+    config = function(_, opts)
+      require('toggleterm').setup(opts)
+    end,
+    keys = {
+      {
+        '<leader>ct',
+        '<cmd>ToggleTerm direction=float<cr>',
+        desc = 'Open a horizontal terminal at the current directory',
       },
     },
   },
