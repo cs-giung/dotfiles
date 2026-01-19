@@ -32,7 +32,37 @@ return {
       extensions = {
         spinner = {
           opts = {
-            style = 'fidget',
+            style = 'native',
+            native = {
+              -- How long (in ms) the "Done!" message should remain visible after completion.
+              done_timer = 1000,
+
+              -- Window configuration - all nvim_open_win options are supported
+              window = {
+                -- Position and size
+                relative = 'editor', -- "editor", "win", "cursor"
+                width = 30, -- Window width in characters
+                height = 1, -- Window height in lines
+                row = vim.o.lines - 5, -- Row position (from top)
+                col = vim.o.columns - 35, -- Column position (from left)
+
+                -- Appearance
+                style = 'minimal', -- Window style
+                border = 'rounded', -- Border style: "none", "single", "double", "rounded", "solid", "shadow"
+                title = 'CodeCompanion', -- Window title text
+                title_pos = 'center', -- Title position: "left", "center", "right"
+
+                -- Behavior
+                focusable = false, -- Whether window can receive focus
+                noautocmd = true, -- Disable autocmds for performance
+              },
+
+              -- Additional window options using nvim_set_option_value
+              win_options = {
+                -- winblend = 10,           -- Window transparency (0-100)
+                -- winhighlight = "Normal:Normal,FloatBorder:Normal", -- Custom highlighting
+              },
+            },
           },
         },
       },
@@ -46,7 +76,6 @@ return {
       'nvim-lua/plenary.nvim',
       'nvim-treesitter/nvim-treesitter',
       'lalitmee/codecompanion-spinners.nvim',
-      'j-hui/fidget.nvim',
     },
     keys = {
       {
