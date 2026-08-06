@@ -18,6 +18,10 @@ return {
     filesystem = {
       window = {
         position = 'float',
+        popup = {
+          size = { height = '80%', width = '80%' },
+          position = '50%',
+        },
         mappings = {
           ['\\'] = 'close_window',
           ['Y'] = function(state)
