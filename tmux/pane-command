@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+
+pid=${1:-}
+pane_width=${2:-}
+[[ $pid =~ ^[0-9]+$ && $pane_width =~ ^[0-9]+$ ]] || exit 0
+
+width=$((pane_width - 8))
+(( width < 4 )) && exit 0
+
+fg=$(ps -o tpgid= -p "$pid" 2>/dev/null | tr -d ' ')
+[[ -z $fg || $fg == "-1" ]] && fg=$pid
+
+cmd_pid=$(ps -eo pid=,pgid= 2>/dev/null |
+    awk -v pgid="$fg" '$2 == pgid { print $1; exit }')
+[[ -z $cmd_pid ]] && exit 0
+
+cmd=$(ps -o args= -p "$cmd_pid" 2>/dev/null)
+[[ -z $cmd ]] && exit 0
+
+n=${#cmd}
+
+if (( n <= width )); then
+    printf '%s' "$cmd"
+    exit
+fi
+
+d=$((n - width))
+p=$(($(date +%s) % (2 * d)))
+(( p > d )) && p=$((2 * d - p))
+
+printf '%s' "${cmd:p:width}"
