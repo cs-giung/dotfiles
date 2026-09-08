@@ -25,7 +25,7 @@ if (( n <= width )); then
 fi
 
 d=$((n - width))
-p=$(($(date +%s) % (2 * d)))
+p=$(( $(date +%s) * 4 % (2 * d) ))
 (( p > d )) && p=$((2 * d - p))
 
 printf '%s' "${cmd:p:width}"
