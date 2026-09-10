@@ -1,5 +1,9 @@
 {
   "plugins": {
+    "gitsigns.nvim": {
+      "rev": "f2421c550618d257048afa650413d9e542ddbe67",
+      "src": "https://github.com/lewis6991/gitsigns.nvim"
+    },
     "indent-blankline.nvim": {
       "rev": "f1e186e44d3b7f9ae918008e2c28ce37c6023d2d",
       "src": "https://github.com/lukas-reineke/indent-blankline.nvim"

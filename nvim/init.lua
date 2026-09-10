@@ -1,7 +1,8 @@
 vim.g.mapleader = " "
 
 vim.opt.clipboard = "unnamedplus"
-vim.opt.colorcolumn = '80,100,120'
+vim.opt.colorcolumn = "80,100,120"
+vim.opt.number = true
 
 vim.api.nvim_set_hl(0, "Normal", { bg = "none" })
 vim.api.nvim_set_hl(0, "NormalFloat", { bg = "none" })
@@ -12,10 +13,31 @@ vim.api.nvim_set_hl(0, "VirtColumn", { fg = "#404040" })
 vim.pack.add({
     { src = "https://github.com/folke/snacks.nvim" },
 })
-require("snacks").setup({
+local Snacks = require("snacks")
+Snacks.setup({
     input = { enabled = true },
     picker = { enabled = true },
 })
+vim.keymap.set("n", "<leader><space>", function()
+    Snacks.picker.smart()
+end, { desc = "Smart find" })
+vim.keymap.set("n", "<leader>ff", function()
+    Snacks.picker.files()
+end, { desc = "Find files" })
+vim.keymap.set("n", "<leader>/", function()
+    Snacks.picker.grep()
+end, { desc = "Grep" })
+vim.keymap.set("n", "<leader>,", function()
+    Snacks.picker.buffers()
+end, { desc = "Buffers" })
+vim.keymap.set({ "n", "x" }, "<leader>fw", function()
+    Snacks.picker.grep_word()
+end, { desc = "Find word" })
+
+vim.pack.add({
+    "https://github.com/lewis6991/gitsigns.nvim",
+})
+require("gitsigns").setup()
 
 vim.pack.add({
     { src = "https://github.com/pablopunk/pi.nvim" },
