@@ -3,7 +3,8 @@
 export LC_ALL=C
 umask 077
 
-cache="${XDG_CACHE_HOME:-$HOME/.cache}/tmux-status-system"
+read -r boot < /proc/sys/kernel/random/boot_id || exit 0
+cache="${XDG_CACHE_HOME:-$HOME/.cache}/tmux-status-system-$boot"
 mkdir -p -- "$cache" 2>/dev/null || exit 0
 [[ -d $cache && ! -L $cache && -O $cache ]] || exit 0
 chmod 700 -- "$cache" || exit 0
@@ -18,7 +19,6 @@ mem=$(awk '
 ' /proc/meminfo)
 
 read -r _ user nice system idle iowait irq softirq steal _ < /proc/stat
-read -r boot < /proc/sys/kernel/random/boot_id
 idle=$((idle + iowait))
 total=$((idle + user + nice + system + irq + softirq + steal))
 cpu="N/A"
