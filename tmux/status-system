@@ -3,7 +3,7 @@
 export LC_ALL=C
 umask 077
 
-cache="${XDG_RUNTIME_DIR:-${XDG_CACHE_HOME:-$HOME/.cache}}/tmux-status-system"
+cache="${XDG_CACHE_HOME:-$HOME/.cache}/tmux-status-system"
 mkdir -p -- "$cache" 2>/dev/null || exit 0
 [[ -d $cache && ! -L $cache && -O $cache ]] || exit 0
 chmod 700 -- "$cache" || exit 0
