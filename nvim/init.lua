@@ -141,3 +141,15 @@ vim.api.nvim_create_autocmd({ "BufWritePost", "InsertLeave" }, {
         lint.try_lint()
     end,
 })
+
+vim.diagnostic.config({
+    severity_sort = true,
+    float = {
+        border = "rounded",
+        source = true,
+        header = { " Diagnostics ", "FloatTitle" },
+        prefix = " ",
+    },
+})
+
+map("n", "<leader>d", vim.diagnostic.open_float, { desc = "Show diagnostic" })
