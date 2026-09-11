@@ -1,31 +1,25 @@
 #!/usr/bin/env bash
 
-pid=${1:-}
-pane_width=${2:-}
-[[ $pid =~ ^[0-9]+$ && $pane_width =~ ^[0-9]+$ ]] || exit 0
+[[ ${1:-} =~ ^[0-9]+$ && ${2:-} =~ ^[0-9]+$ ]] || exit 0
+width=$((10#$2 - 8))
+(( width >= 4 )) || exit 0
 
-width=$((pane_width - 8))
-(( width < 4 )) && exit 0
+fg=$(ps -o tpgid= -p "$1" 2>/dev/null | tr -d ' ')
+[[ -z $fg || $fg == -1 ]] && fg=$1
+cmd=$(ps -ww -eo pgid=,args= 2>/dev/null | awk -v g="$fg" '
+    $1 == g { sub(/^[[:space:]]*[0-9]+[[:space:]]+/, ""); print; exit }
+')
+[[ -n $cmd ]] || exit 0
 
-fg=$(ps -o tpgid= -p "$pid" 2>/dev/null | tr -d ' ')
-[[ -z $fg || $fg == "-1" ]] && fg=$pid
+exec python3 - "$width" "$cmd" <<'PY'
+import sys, time
+from wcwidth import clip, wcswidth
 
-cmd_pid=$(ps -eo pid=,pgid= 2>/dev/null |
-    awk -v pgid="$fg" '$2 == pgid { print $1; exit }')
-[[ -z $cmd_pid ]] && exit 0
-
-cmd=$(ps -o args= -p "$cmd_pid" 2>/dev/null)
-[[ -z $cmd ]] && exit 0
-
-n=${#cmd}
-
-if (( n <= width )); then
-    printf '%s' "$cmd"
-    exit
-fi
-
-d=$((n - width))
-p=$(( $(date +%s) * 4 % (2 * d) ))
-(( p > d )) && p=$((2 * d - p))
-
-printf '%s' "${cmd:p:width}"
+width, cmd = int(sys.argv[1]), sys.argv[2]
+p, d = 0, wcswidth(cmd) - width
+if d > 0:
+    steps = (d + 3) // 4
+    p = int(time.time()) % (2 * steps)
+    p = min(4 * min(p, 2 * steps - p), d)
+print(clip(cmd, p, p + width), end="")
+PY

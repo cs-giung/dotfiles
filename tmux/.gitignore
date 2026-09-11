@@ -1,3 +1,2 @@
-# TPM installs these plugins locally; keep TPM itself as a tracked submodule.
 /plugins/*
 !/plugins/tpm/

@@ -2,42 +2,40 @@
 
 export LC_ALL=C
 umask 077
-
 read -r boot < /proc/sys/kernel/random/boot_id || exit 0
-cache="${XDG_CACHE_HOME:-$HOME/.cache}/tmux-status-system-$boot"
+server=${TMUX%,*}
+server=${server##*,}
+[[ $server =~ ^[0-9]+$ ]] || server=standalone
+cache="${XDG_CACHE_HOME:-$HOME/.cache}/tmux-status-system-$boot-$server"
 mkdir -p -- "$cache" 2>/dev/null || exit 0
-[[ -d $cache && ! -L $cache && -O $cache ]] || exit 0
+[[ -d $cache && ! -L $cache && -O $cache && ! -L $cache/lock ]] || exit 0
 chmod 700 -- "$cache" || exit 0
-[[ ! -L $cache/lock ]] || exit 0
-exec 9>"$cache/lock"
-flock -n 9 || exit 0
+exec 9>"$cache/lock" || exit 0
+flock -w 1 9 || exit 0
 
 mem=$(awk '
-    /^MemTotal:/ { total=$2 }
-    /^MemAvailable:/ { available=$2 }
-    END { if (total > 0) printf "%.1f%%", (total-available)*100/total }
+    /^MemTotal:/ { t=$2 }
+    /^MemAvailable:/ { a=$2 }
+    END { if (t) printf "%.1f%%", 100*(t-a)/t }
 ' /proc/meminfo)
+read -r _ user nice system idle wait irq soft steal _ < /proc/stat
+idle=$((idle + wait))
+total=$((idle + user + nice + system + irq + soft + steal))
+cpu=N/A
 
-read -r _ user nice system idle iowait irq softirq steal _ < /proc/stat
-idle=$((idle + iowait))
-total=$((idle + user + nice + system + irq + softirq + steal))
-cpu="N/A"
-
-if [[ -f $cache/state && ! -L $cache/state ]]; then
-    read -r prev_boot prev_total prev_idle extra < "$cache/state"
-    if [[ $prev_boot == "$boot" && -z $extra &&
-          $prev_total =~ ^[0-9]{1,18}$ && $prev_idle =~ ^[0-9]{1,18}$ ]]; then
-        dt=$((total - 10#$prev_total))
-        di=$((idle - 10#$prev_idle))
-        if (( dt > 0 && di >= 0 && di <= dt )); then
-            cpu=$(awk -v t="$dt" -v i="$di" 'BEGIN { printf "%.1f%%", 100*(t-i)/t }')
-        fi
+if [[ -f $cache/state && ! -L $cache/state ]] &&
+    read -r prev_boot prev_total prev_idle extra < "$cache/state" &&
+    [[ $prev_boot == "$boot" && -z $extra &&
+       $prev_total =~ ^[0-9]{1,18}$ && $prev_idle =~ ^[0-9]{1,18}$ ]]; then
+    dt=$((total - 10#$prev_total))
+    di=$((idle - 10#$prev_idle))
+    if (( dt > 0 && di >= 0 && di <= dt )); then
+        cpu=$(awk -v t="$dt" -v i="$di" 'BEGIN { printf "%.1f%%", 100*(t-i)/t }')
     fi
 fi
 
-temp=$(mktemp "$cache/state.XXXXXX") || exit 0
-trap 'rm -f -- "$temp"' EXIT
-printf '%s %s %s\n' "$boot" "$total" "$idle" > "$temp" && mv -fT -- "$temp" "$cache/state"
-
+tmp=$(mktemp "$cache/state.XXXXXX") || exit 0
+trap 'rm -f -- "$tmp"' EXIT
+printf '%s %s %s\n' "$boot" "$total" "$idle" > "$tmp" && mv -fT -- "$tmp" "$cache/state"
 read -r load _ < /proc/loadavg
 printf '󰍛 %s   %s  󰓅 %s' "$mem" "$cpu" "$load"
