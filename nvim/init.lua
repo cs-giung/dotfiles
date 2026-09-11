@@ -7,6 +7,18 @@ vim.opt.shiftwidth = 4
 vim.opt.softtabstop = 4
 vim.opt.expandtab = true
 
+vim.api.nvim_create_autocmd("FileType", {
+    group = vim.api.nvim_create_augroup("tex_manual_indent", { clear = true }),
+    desc = "Disable automatic indentation in TeX buffers",
+    pattern = { "tex", "plaintex" },
+    callback = function()
+        vim.opt_local.autoindent = false
+        vim.opt_local.smartindent = false
+        vim.opt_local.cindent = false
+        vim.opt_local.indentexpr = ""
+    end,
+})
+
 for group, style in pairs({
     Normal = { bg = "none" },
     NormalFloat = { bg = "none" },
