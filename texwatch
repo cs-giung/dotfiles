@@ -1,0 +1,101 @@
+#!/usr/bin/env bash
+
+set -u
+
+if (( $# > 1 )); then
+    echo "Usage: ${0##*/} [file.tex]" >&2
+    exit 1
+fi
+
+for command in latexmk inotifywait; do
+    command -v "$command" >/dev/null 2>&1 || {
+        echo "Missing dependency: $command" >&2
+        exit 1
+    }
+done
+
+src="$(basename -- "${1:-main.tex}")"
+dir="$(dirname -- "${1:-main.tex}")"
+
+cd -- "$dir" || exit 1
+[[ -f $src && $src == *.tex ]] || {
+    echo "Not a TeX file: $src" >&2
+    exit 1
+}
+name="${src%.tex}"
+mkdir -p -- .build .preview || exit 1
+
+watcher=
+tmp=
+cleanup() {
+    [[ -z $tmp ]] || rm -f -- "$tmp"
+    if [[ -n $watcher ]]; then
+        kill "$watcher" 2>/dev/null || :
+        wait "$watcher" 2>/dev/null || :
+    fi
+}
+trap cleanup EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
+
+publish() {
+    local source=$1 destination=$2
+    tmp=$(mktemp -- "$destination.tmp.XXXXXX") || return 1
+    if cp -- "$source" "$tmp" && mv -f -- "$tmp" "$destination"; then
+        tmp=
+        return 0
+    fi
+    rm -f -- "$tmp"
+    tmp=
+    return 1
+}
+
+compile() {
+    echo "==> compiling $src"
+
+    if latexmk \
+        -pdf \
+        -outdir=.build \
+        -interaction=nonstopmode \
+        -file-line-error \
+        -synctex=1 \
+        "./$src"
+    then
+        if ! publish ".build/$name.pdf" ".preview/$name.pdf"; then
+            echo "==> preview update FAILED -- keeping last good PDF" >&2
+            return 1
+        fi
+
+        if [[ -f ".build/$name.synctex.gz" ]]; then
+            publish ".build/$name.synctex.gz" ".preview/$name.synctex.gz" || {
+                echo "==> SyncTeX update FAILED" >&2
+                return 1
+            }
+        else
+            rm -f -- ".preview/$name.synctex.gz"
+        fi
+        echo "==> build OK"
+    else
+        echo "==> build FAILED -- keeping last good PDF" >&2
+    fi
+}
+
+# Keep the watcher alive while latexmk runs; events queue in the pipe.
+# A fixed record avoids parsing filenames containing whitespace or newlines.
+exec {events}< <(exec inotifywait \
+    -q -m -r \
+    -e close_write,create,move,delete \
+    --include '.*\.(tex|bib|sty|cls)$' \
+    --format changed .)
+watcher=$!
+
+compile
+
+while IFS= read -r -u "$events" event; do
+    # Coalesce save bursts, including edits queued during the previous build.
+    while IFS= read -r -t 0.2 -u "$events" event; do :; done
+    compile
+done
+
+echo "==> file watcher stopped" >&2
+exit 1

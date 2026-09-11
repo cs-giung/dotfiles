@@ -2,6 +2,10 @@ vim.g.mapleader = " "
 vim.opt.clipboard = "unnamedplus"
 vim.opt.colorcolumn = "80,100,120"
 vim.opt.number = true
+vim.opt.tabstop = 4
+vim.opt.shiftwidth = 4
+vim.opt.softtabstop = 4
+vim.opt.expandtab = true
 
 for group, style in pairs({
     Normal = { bg = "none" },
@@ -22,6 +26,7 @@ vim.pack.add({
     "https://github.com/nvim-lua/plenary.nvim",
     "https://github.com/MunifTanjim/nui.nvim",
     "https://github.com/nvim-tree/nvim-web-devicons",
+    "https://github.com/mfussenegger/nvim-lint",
     { src = "https://github.com/nvim-neo-tree/neo-tree.nvim", version = vim.version.range("3") },
 }, { load = true })
 
@@ -85,7 +90,7 @@ local function copy_path(state)
         { "Path relative to HOME", vim.fn.fnamemodify(path, ":~") },
         { "Filename", node.name },
     }, {
-        prompt = "Choose to copy to clipboard:",
+        prompt = "Choose a path to copy:",
         format_item = function(item) return string.format("%-30s %s", item[1], item[2]) end,
     }, function(choice)
         if choice then
@@ -108,3 +113,19 @@ require("neo-tree").setup({
     } },
 })
 map("n", "\\", "<cmd>Neotree reveal<cr>", { desc = "NeoTree reveal", silent = true })
+
+local lint = require("lint")
+
+lint.linters.chktex.ignore_exitcode = true
+lint.linters_by_ft = {
+    tex = { "chktex" },
+    plaintex = { "chktex" },
+}
+
+vim.api.nvim_create_autocmd({ "BufWritePost", "InsertLeave" }, {
+    group = vim.api.nvim_create_augroup("tex_lint", { clear = true }),
+    pattern = "*.tex",
+    callback = function()
+        lint.try_lint()
+    end,
+})
