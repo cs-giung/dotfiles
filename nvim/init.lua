@@ -31,6 +31,7 @@ end
 
 vim.pack.add({
     "https://github.com/folke/snacks.nvim",
+    "https://github.com/3rd/image.nvim",
     "https://github.com/lewis6991/gitsigns.nvim",
     "https://github.com/pablopunk/pi.nvim",
     "https://github.com/lukas-reineke/indent-blankline.nvim",
@@ -44,7 +45,27 @@ vim.pack.add({
 
 local map = vim.keymap.set
 local snacks = require("snacks")
-snacks.setup({ input = { enabled = true }, picker = { enabled = true } })
+snacks.setup({
+    input = { enabled = true },
+    picker = { enabled = true },
+    image = { enabled = false },
+})
+require("image").setup({
+    backend = "sixel",
+    processor = "magick_cli",
+    -- Only render directly opened image files, never images embedded in documents.
+    integrations = {
+        markdown = { enabled = false },
+        asciidoc = { enabled = false },
+        neorg = { enabled = false },
+        rst = { enabled = false },
+        typst = { enabled = false },
+        syslang = { enabled = false },
+        org = { enabled = false },
+        html = { enabled = false },
+        css = { enabled = false },
+    },
+})
 for _, binding in ipairs({
     { "<leader><space>", "smart", "Smart find" },
     { "<leader>ff", "files", "Find files" },
