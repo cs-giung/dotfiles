@@ -53,6 +53,8 @@ snacks.setup({
 require("image").setup({
     backend = "sixel",
     processor = "magick_cli",
+    window_overlap_clear_enabled = true,
+    tmux_show_only_in_active_window = true,
     -- Only render directly opened image files, never images embedded in documents.
     integrations = {
         markdown = { enabled = false },
