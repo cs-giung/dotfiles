@@ -9,7 +9,7 @@ hl.on("hyprland.start", function()
         "waybar",
         -- PSK stays outside Git but is still visible in process arguments.
         [[psk=; { IFS= read -r psk || [ -n "$psk" ]; } < "$HOME/.config/p2p-clipboard/psk" || exit; psk=${psk%"$(printf '\r')"}; [ -n "$psk" ] && exec "$HOME/.local/bin/p2p-clipboard" --psk "$psk"]],
-        [[swaybg -i "$HOME/windows-11-blue-ub.jpg" -m fill]],
+        [[swaybg -i "$HOME/.config/hypr/windows-11-blue-ub.jpg" -m fill]],
     }) do
         hl.exec_cmd(command)
     end
