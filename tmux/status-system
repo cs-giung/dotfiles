@@ -1,6 +1,27 @@
 #!/usr/bin/env bash
 
 export LC_ALL=C
+
+# macOS has no /proc (or flock); use its native system tools instead.
+if [[ $(uname -s) == Darwin ]]; then
+    mem=$(vm_stat | awk -v total="$(sysctl -n hw.memsize)" '
+        /page size of/ { size=$8 }
+        /^Pages (free|inactive|speculative):/ { available += $NF }
+        END {
+            if (total > 0 && size > 0)
+                printf "%.1f%%", 100*(total-available*size)/total
+        }
+    ')
+    # Use the second sample so CPU usage covers the last second, not uptime.
+    cpu=$(top -l 2 -s 1 -n 0 | awk '
+        /^CPU usage:/ { idle=$(NF-1); sub(/%$/, "", idle) }
+        END { if (idle != "") printf "%.1f%%", 100-idle }
+    ')
+    load=$(sysctl -n vm.loadavg | awk '{ print $2 }')
+    printf '󰍛 %s   %s  󰓅 %s' "${mem:-N/A}" "${cpu:-N/A}" "${load:-N/A}"
+    exit 0
+fi
+
 umask 077
 read -r boot < /proc/sys/kernel/random/boot_id || exit 0
 server=${TMUX%,*}
