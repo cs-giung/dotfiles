@@ -40,8 +40,19 @@ vim.pack.add({
     "https://github.com/MunifTanjim/nui.nvim",
     "https://github.com/nvim-tree/nvim-web-devicons",
     "https://github.com/mfussenegger/nvim-lint",
+    "https://github.com/stevearc/conform.nvim",
     { src = "https://github.com/nvim-neo-tree/neo-tree.nvim", version = vim.version.range("3") },
 }, { load = true })
+
+require("conform").setup({
+    formatters_by_ft = {
+        bib = { "bibtex-tidy" },
+    },
+    format_on_save = {
+        timeout_ms = 2000,
+        lsp_format = "never",
+    },
+})
 
 local map = vim.keymap.set
 local snacks = require("snacks")
