@@ -82,8 +82,8 @@ end
 
 require("gitsigns").setup()
 require("pi").setup({
-    provider = "openai-codex",
-    model = "gpt-5.6-luna",
+    provider = "openai",
+    model = "gpt-6-luna",
     thinking = "off",
     skills = false,
     extensions = false,
