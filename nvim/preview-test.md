@@ -1,56 +1,56 @@
-# Neovim 이미지·수식 미리보기 테스트
+# Neovim Image and Math Preview Tests
 
-일반 모드에서 아래 이미지 링크나 수식 위로 커서를 옮겨 확인합니다.
-수식은 커서를 놓고 약 250ms 기다리면 팝업이 나타납니다.
-첫 수식 렌더링은 LaTeX 변환 때문에 조금 더 걸릴 수 있습니다.
+In normal mode, move the cursor onto the image links or formulas below.
+Math popups appear after the cursor stays still for about 250 ms.
+The first preview may take longer while LaTeX converts the formula.
 
-## 1. 로컬 이미지
+## 1. Local Image
 
-아래 이미지 링크 줄에 커서를 놓으면 저장소에 있는 배경 이미지가 팝업으로 표시되어야 합니다.
-경로는 이 Markdown 파일 기준입니다.
+Place the cursor on the image-link line below. The wallpaper from this repository
+should appear in a popup. The path is relative to this Markdown file.
 
-![로컬 배경 이미지](../hypr-vm/windows-11-blue-ub.jpg)
+![Local wallpaper](../hypr-vm/windows-11-blue-ub.jpg)
 
-이 줄로 이동하면 이미지 팝업이 사라지는지 확인합니다.
+Move to this line and check that the image popup closes.
 
-## 2. 원격 이미지
+## 2. Remote Image
 
-아래 링크 줄에 커서를 놓으면 이미지를 다운로드한 뒤 표시해야 합니다.
-이 항목은 인터넷 연결이 필요합니다.
+Place the cursor on the link below. The image should be downloaded and displayed.
+This test requires an internet connection.
 
-![원격 Neovim 아이콘](https://raw.githubusercontent.com/github/explore/main/topics/neovim/neovim.png)
+![Remote Neovim icon](https://raw.githubusercontent.com/github/explore/main/topics/neovim/neovim.png)
 
-이 줄로 이동하면 이미지 팝업이 사라지는지 확인합니다.
+Move to this line and check that the image popup closes.
 
-## 3. 인라인 수식
+## 3. Inline Math
 
-각 수식의 달러 기호 사이로 커서를 옮겨 확인합니다.
+Move the cursor between the dollar signs of each formula.
 
-기본 수식: $\alpha + x^2 + y^2 = z^2$.
+Basic formula: $\alpha + x^2 + y^2 = z^2$.
 
-분수와 제곱근: $\frac{1}{\sqrt{2\pi}} e^{-x^2/2}$.
+Fractions and square roots: $\frac{1}{\sqrt{2\pi}} e^{-x^2/2}$.
 
-첨자와 그리스 문자: $\theta_i = \alpha_i + \beta_{i+1}$.
+Subscripts and Greek letters: $\theta_i = \alpha_i + \beta_{i+1}$.
 
-같은 수식 재방문: $\alpha + x^2 + y^2 = z^2$.
+Repeated formula: $\alpha + x^2 + y^2 = z^2$.
 
-마지막 수식은 앞의 수식과 같으므로 생성된 PNG 캐시를 재사용합니다.
+The last formula matches the first one and should reuse the cached PNG.
 
-## 4. 블록 수식
+## 4. Block Math
 
-합 공식:
+Summation:
 
 $$
 \sum_{i=1}^{n} i = \frac{n(n+1)}{2}
 $$
 
-적분:
+Integral:
 
 $$
 \int_{-\infty}^{\infty} e^{-x^2}\,dx = \sqrt{\pi}
 $$
 
-행렬:
+Matrix:
 
 $$
 A = \begin{pmatrix}
@@ -60,7 +60,7 @@ A = \begin{pmatrix}
 \qquad \det(A) = -2
 $$
 
-여러 줄 정렬:
+Aligned equations:
 
 $$
 \begin{aligned}
@@ -69,25 +69,25 @@ f(x) &= (x+1)^2 \\
 \end{aligned}
 $$
 
-## 5. 팝업 동작 확인
+## 5. Popup Behavior Checklist
 
-- [ ] 로컬 이미지 링크에 커서를 놓으면 이미지가 보인다.
-- [ ] 원격 이미지 링크에 커서를 놓으면 다운로드 후 이미지가 보인다.
-- [ ] 인라인·블록 수식에 커서를 놓으면 렌더링된 수식이 보인다.
-- [ ] 일반 텍스트로 커서를 옮기면 팝업이 닫힌다.
-- [ ] 수식 팝업이 열린 상태에서 입력 모드로 들어가면 닫힌다.
-- [ ] 수식 팝업이 열린 상태에서 스크롤하거나 다른 창으로 이동해도 잔상이 남지 않는다.
-- [ ] 빠르게 여러 수식 사이를 이동해도 이전 수식이 뒤늦게 나타나지 않는다.
-- [ ] 같은 수식을 다시 방문하면 캐시된 이미지를 사용한다.
+- [ ] The local image appears when the cursor is on its link.
+- [ ] The remote image downloads and appears when the cursor is on its link.
+- [ ] Inline and block formulas appear as rendered math popups.
+- [ ] Moving the cursor to ordinary text closes the popup.
+- [ ] Entering insert mode closes an open math popup.
+- [ ] Scrolling or switching windows leaves no stale math popup on screen.
+- [ ] Moving quickly between formulas does not display an outdated result later.
+- [ ] Revisiting the same formula reuses the cached image.
 
-## 6. Markview 표시 전환
+## 6. Markview Toggles
 
-- `<Space>mp`: 문서 렌더링 켜기/끄기
-- `<Space>ms`: 분할 미리보기 켜기/끄기
+- `<Space>mp`: Toggle document rendering.
+- `<Space>ms`: Toggle the split preview.
 
-Markview의 문서 꾸미기와 이미지·수식 팝업은 별도 기능입니다.
+Markview document styling and image/math popups are separate features.
 
-## 문제가 생겼을 때
+## Troubleshooting
 
-`:PreviewDebugStart`를 실행하고 문제를 재현한 뒤 `:PreviewDebugStop`을 실행합니다.
-로그 경로는 `:lua print(vim.fn.stdpath("cache") .. "/document-preview.log")`로 확인할 수 있습니다.
+Run `:PreviewDebugStart`, reproduce the issue, then run `:PreviewDebugStop`.
+Print the log path with `:lua print(vim.fn.stdpath("cache") .. "/document-preview.log")`.

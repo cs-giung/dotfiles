@@ -31,6 +31,7 @@ end
 
 vim.pack.add({
     "https://github.com/folke/snacks.nvim",
+    "https://github.com/folke/which-key.nvim",
     "https://github.com/3rd/image.nvim",
     "https://github.com/lewis6991/gitsigns.nvim",
     "https://github.com/pablopunk/pi.nvim",
@@ -57,6 +58,20 @@ require("conform").setup({
 })
 
 local map = vim.keymap.set
+
+local which_key = require("which-key")
+which_key.setup({
+    delay = 300,
+    win = { border = "rounded" },
+    spec = {
+        { "<leader>a", group = "AI", mode = { "n", "v" } },
+        { "<leader>f", group = "Find", mode = { "n", "x" } },
+        { "<leader>m", group = "Markdown" },
+    },
+})
+map("n", "<leader>?", function()
+    which_key.show({ keys = "<leader>" })
+end, { desc = "Show leader keymaps" })
 
 -- Missing parsers are installed asynchronously; requires tree-sitter CLI and a C compiler.
 require("nvim-treesitter").install({ "markdown", "markdown_inline", "latex" })
