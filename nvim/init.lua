@@ -41,6 +41,8 @@ vim.pack.add({
     "https://github.com/nvim-tree/nvim-web-devicons",
     "https://github.com/mfussenegger/nvim-lint",
     "https://github.com/stevearc/conform.nvim",
+    "https://github.com/OXY2DEV/markview.nvim",
+    { src = "https://github.com/nvim-treesitter/nvim-treesitter", version = "main" },
     { src = "https://github.com/nvim-neo-tree/neo-tree.nvim", version = vim.version.range("3") },
 }, { load = true })
 
@@ -55,20 +57,40 @@ require("conform").setup({
 })
 
 local map = vim.keymap.set
+
+-- Missing parsers are installed asynchronously; requires tree-sitter CLI and a C compiler.
+require("nvim-treesitter").install({ "markdown", "markdown_inline", "latex" })
+
+require("markview").setup({
+    preview = {
+        icon_provider = "devicons",
+    },
+})
+map("n", "<leader>mp", "<cmd>Markview toggle<cr>", { desc = "Toggle Markdown preview" })
+map("n", "<leader>ms", "<cmd>Markview splitToggle<cr>", { desc = "Toggle Markdown split preview" })
+
 local snacks = require("snacks")
 snacks.setup({
     input = { enabled = true },
     picker = { enabled = true },
+    -- Keep one image-file handler and one graphics protocol (image.nvim/Sixel).
     image = { enabled = false },
 })
+require("sixel_transport").setup()
 require("image").setup({
     backend = "sixel",
     processor = "magick_cli",
-    window_overlap_clear_enabled = true,
+    -- Overlap polling requeues unpainted Sixel frames and can starve its flush timer.
+    window_overlap_clear_enabled = false,
     tmux_show_only_in_active_window = true,
-    -- Only render directly opened image files, never images embedded in documents.
     integrations = {
-        markdown = { enabled = false },
+        markdown = {
+            enabled = true,
+            download_remote_images = true,
+            only_render_image_at_cursor = true,
+            only_render_image_at_cursor_mode = "popup",
+            clear_in_insert_mode = true,
+        },
         asciidoc = { enabled = false },
         neorg = { enabled = false },
         rst = { enabled = false },
@@ -79,6 +101,9 @@ require("image").setup({
         css = { enabled = false },
     },
 })
+require("math_popup").setup()
+require("preview_debug").setup()
+
 for _, binding in ipairs({
     { "<leader><space>", "smart", "Smart find" },
     { "<leader>ff", "files", "Find files" },
