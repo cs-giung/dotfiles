@@ -2,12 +2,24 @@
 
 set -u
 
+if (( BASH_VERSINFO[0] < 4 ||
+      (BASH_VERSINFO[0] == 4 && BASH_VERSINFO[1] < 1) )); then
+    echo "Requires Bash 4.1 or newer (macOS: brew install bash)" >&2
+    exit 1
+fi
+
 if (( $# > 1 )); then
     echo "Usage: ${0##*/} [file.tex]" >&2
     exit 1
 fi
 
-for command in latexmk inotifywait; do
+if [[ $(uname -s) == Darwin ]]; then
+    watch_command=fswatch
+else
+    watch_command=inotifywait
+fi
+
+for command in latexmk "$watch_command"; do
     command -v "$command" >/dev/null 2>&1 || {
         echo "Missing dependency: $command" >&2
         exit 1
@@ -82,11 +94,18 @@ compile() {
 
 # Keep the watcher alive while latexmk runs; events queue in the pipe.
 # A fixed record avoids parsing filenames containing whitespace or newlines.
-exec {events}< <(exec inotifywait \
-    -q -m -r \
-    -e close_write,create,move,delete \
-    --include '.*\.(tex|bib|sty|cls)$' \
-    --format changed .)
+if [[ $watch_command == fswatch ]]; then
+    exec {events}< <(exec fswatch \
+        -m fsevents_monitor -r -o -l 0.2 \
+        --event Created --event Updated --event Renamed --event Removed \
+        -E -e '.*' -i '.*\.(tex|bib|sty|cls)$' .)
+else
+    exec {events}< <(exec inotifywait \
+        -q -m -r \
+        -e close_write,create,move,delete \
+        --include '.*\.(tex|bib|sty|cls)$' \
+        --format changed .)
+fi
 watcher=$!
 
 compile
