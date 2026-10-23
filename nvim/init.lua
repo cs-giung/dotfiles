@@ -78,6 +78,7 @@ require("nvim-treesitter").install({ "markdown", "markdown_inline", "latex" })
 
 require("markview").setup({
     preview = {
+        enable = false,
         icon_provider = "devicons",
     },
 })
