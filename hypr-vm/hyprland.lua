@@ -53,7 +53,7 @@ local function bind(key, action, options)
 end
 
 bind("RETURN", dsp.exec_cmd("foot"))
-bind("W", dsp.exec_cmd("chromium"))
+bind("W", dsp.exec_cmd("qutebrowser"))
 bind("Q", dsp.window.close())
 bind("F", dsp.window.fullscreen({ mode = "fullscreen", action = "toggle" }))
 bind("V", dsp.window.float({ action = "toggle" }))
